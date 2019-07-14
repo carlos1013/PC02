@@ -1,6 +1,6 @@
 from math import pow, sqrt, pi, e
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import axes3d
+from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
 
 def aprox2(i, n):
@@ -32,26 +32,34 @@ def g(x):
 def teste(i, j):
     return (U[i-1][j] - 2*U[i][j] + U[i+1][j])*delta_t/pow(delta_x, 2) + U[i][j]
 
+fig = plt.figure()
+ax = plt.axes(projection='3d')
 
-n = 20
-delta_x = 0.2
-delta_t = 0.1
+n = 10
+delta_x = 3.2
+delta_t = 1
 x = [i*delta_x for i in range(n)]  # valores de x
 t = [i*delta_t for i in range(n)]  # valores de t
 
-u = 1  # velocidade
-a = 1  # parametro de difusao
+u = 3  # velocidade
+a = 5  # parametro de difusao
 
 o = u*delta_t/delta_x
 B = a*delta_t/pow(delta_x, 2)
 Pe = u*delta_x/(2*a)
+
+courant = (u * delta_t)  / (delta_x) #courant deve em teoria ser proximo de 1 pro bagulho ficar legal
+peclet = (courant/2)/(a * delta_t/delta_x**2)
+
+print('courant:', courant)
+print('peclet:', peclet)
 
 U = []
 for _ in range(n):
     U.append([0]*n)
 
 for i in range(n):
-    U[i][0] = f(x[i])
+    U[-1][i] = 1
 
 
 for Tj in range(n-1):
@@ -62,3 +70,12 @@ for linha in U:
     for item in linha:
         print(round(item, 5), end=" ")
     print()
+G = np.matrix(U)
+X, T = np.meshgrid(np.arange(G.shape[0]), np.arange(G.shape[1]))
+
+surf = ax.plot_surface(X, T, G, cmap= 'coolwarm', linewidth=0, antialiased=True)
+#ax.set_zlim(0, 1)
+ax.set_xlabel('delta_x')
+ax.set_ylabel('delta_t')
+ax.set_zlabel('delta_h')
+plt.show()
