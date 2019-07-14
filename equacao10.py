@@ -44,11 +44,11 @@ fig = plt.figure()
 ax = plt.axes(projection='3d')
 
 #definindo valores iniciais
-alfa = 1
-u =  1
+alfa = 40
+u = 8
 
 delta_t = 1
-delta_x = 10
+delta_x = 9
 
 x_atual = 1
 t_atual = 0
@@ -60,19 +60,19 @@ passototal = []
 courant = (u * delta_t)  / (delta_x) #courant deve em teoria ser proximo de 1 pro bagulho ficar legal
 peclet = (courant/2)/(alfa * delta_t/delta_x**2)
 gama = alfa* delta_t / delta_x**2
-print('courant:', courant)
-print('peclet:', peclet)
-print('gama:', gama)
+text_peclet = 'Peclet:'+ str(peclet)
+text_courant = 'Courant:' + str(courant)
+text_gama = 'Gama:' + str(gama)
 #Fazendo 3 matrizes, as duas necessarias pra fatoracao LU e a q vai ter os results mesmo
 
-grid = [[0]*300 for i in range (300)] #grid onde a gente vai preencher os valores
+grid = [[0]*100 for i in range (100)] #grid onde a gente vai preencher os valores
 matriz_U = [[0]]*(len(grid[0])-1)
 matriz_A = [[0]*(len(grid[0])-1) for i in range ((len(grid[0])-1))]
 matriz_A = preenche_A(matriz_A, courant, gama)
 #print(len(matriz_U),len(matriz_U[0]), len(matriz_A), len(matriz_A[0]))
 for i in range(0, len(grid[0])):
     x = (i)/(len(grid))
-    grid[-1][i] = 1
+    grid[-1][i] = f(x)
 
 for i in range(1, len(grid[0])-1):
     matriz_U[i-1][0] = grid[-1][i]
@@ -85,20 +85,23 @@ for i in range(0, len(grid)-1):
 
 
 grid = preenche_Matriz(grid, matriz_A, matriz_U)
-#for i in range(len(grid)):
-#    print(grid[i])
+for i in range(len(grid)):
+    print(grid[i])
 G = [[0]*int((len(grid[0])/2)) for i in range(0, int((len(grid)/2)))]
 for i in range(0, int((len(grid)/2))):
     for j in range(0, int((len(grid[0])/2))):
         G[i][j] = grid[int((len(grid)/4)) + i][int((len(grid[0])/4)) + j]
-G = np.matrix(G)
+G = np.matrix(grid)
 X, T = np.meshgrid(np.arange(G.shape[0]),np.arange(G.shape[1]))
 #G =G.reshape(15,50)
-surf = ax.plot_surface(X, T, G, cmap= 'coolwarm', linewidth=0, antialiased=True)
+surf = ax.plot_surface(X, T, G, cmap= 'hot', linewidth=0, antialiased=True)
 #ax.scatter3D(passototal, tempototal, G, c=G, cmap='Greens')
+ax.text2D(0.05, 0.90, text_peclet, transform=ax.transAxes)
+ax.text2D(0.05, 0.85, text_courant, transform=ax.transAxes)
+ax.text2D(0.05, 0.80, text_gama, transform=ax.transAxes)
 ax.set_zlim(0, 1)
 ax.set_xlabel('delta_x')
 ax.set_ylabel('delta_t')
 ax.set_zlabel('delta_h')
-plt.matshow(grid)
+#plt.matshow(G, cmap = 'hot')
 plt.show()
